@@ -17,7 +17,7 @@
   "devDependencies": {},
   "scripts": {
     "test": "node test/test.js",
-    "start": "node docker/app.js"
+    "start": "node app/app.js"
   },
   "repository": {
     "type": "git",
