@@ -2,11 +2,14 @@ const qiniu = require('qiniu');
 const moment = require('moment');
 
 class Qn {
-  constructor(conf) {
-    this.accessKey = conf.accessKey;
-    this.secretKey = conf.secretKey;
-    this.bucket = conf.bucket;
-    this.bucketDomain = conf.bucketDomain;
+  constructor(conf = {}) {
+    // this.accessKey = conf.accessKey;
+    // this.secretKey = conf.secretKey;
+    // this.bucket = conf.bucket;
+    // this.bucketDomain = conf.bucketDomain;
+    for (const k in conf) {
+      this[k] = conf[k];
+    }
 
     this.config = new qiniu.conf.Config();
     this.config.zone = qiniu.zone.Zone_z0;
@@ -68,13 +71,19 @@ class Qn {
     const putExtra = new qiniu.form_up.PutExtra();
 
     return new Promise((resolve, reject) => {
-      formUploader.putStream(this.uploadToken, key, readableStream, putExtra, function(respErr,
-        respBody, respInfo) {
+      formUploader.putStream(this.uploadToken, key, readableStream, putExtra, (respErr, respBody, respInfo) => {
         if (respErr) {
           return reject(respErr);
         }
 
-        return resolve({respInfo, respBody});
+        if (this.downloadPrefix) {
+          respBody.key = this.downloadPrefix.endsWith('/') ?
+            this.downloadPrefix + respBody.key
+            :
+            `${this.downloadPrefix}/${respBody.key}`;
+        }
+
+        return resolve({ respInfo, respBody });
         // if (respInfo.statusCode == 200) {
         //   console.log(respBody);
         // } else {

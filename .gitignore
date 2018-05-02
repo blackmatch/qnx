@@ -60,3 +60,4 @@ typings/
 # add by blackmatch
 test/
 files/
+config.js

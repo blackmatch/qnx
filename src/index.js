@@ -1,6 +1,7 @@
 const http = require('http');
 const express = require('express');
 const multer = require('multer');
+const cors = require('cors');
 const _ = require('lodash');
 const fs = require('fs');
 const moment = require('moment');
@@ -31,6 +32,9 @@ class App {
   }
 
   initAPI() {
+    // cors
+    this.app.use(cors());
+
     // upload file api
     this.app.post('/upload', upload.single('file'), async (req, res, next) => {
       if (req.file) {
@@ -44,17 +48,19 @@ class App {
           if (200 === statusCode) {
             res.json({
               msg: 'ok!',
-              downloadUrl: `file/${respKey}`
+              downloadUrl: respKey
             });
             res.end();
           } else {
-            res.sendStatus(400);
+            res.setHeader(result.respInfo.headers);
             res.json(result);
+            res.end();
           }
 
           // remove the file from server
           fs.unlinkSync(req.file.path);
         } catch (error) {
+          console.log(error);
           res.json({
             msg: 'error occured!',
             error
